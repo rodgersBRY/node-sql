@@ -1,24 +1,28 @@
 const express = require("express");
-const logger = require("morgan");
+const cors = require("cors");
 
-require("dotenv").config();
 const app = express();
 
-app.use(logger("dev"));
-// get access to the body
-app.use(express.json())
-app.use("/posts", require("./routes/post.route"));
+var corsOptions = {
+  origin: "https://localhost:8080",
+};
 
-app.use((error, req, res, next) => {
-  const message = error.message;
-  const status = error.status || 500;
-  const data = error.data;
+// routers
+const routes = require("./routes/post.routes")
 
-  return res.status(status).json({ message, data });
+// middleware
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.get("/", (req, res) => {
+  res.json({ message: "hello from api" });
 });
+
+app.use("/api/posts", routes)
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+app.listen(port, function () {
   console.log("listening on port " + port);
 });
